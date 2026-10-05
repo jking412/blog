@@ -2,6 +2,8 @@
 
 源码保存在 [jking412/blog](https://github.com/jking412/blog) 的 `main`，Astro 构建产物保存在 [jking412/jking412.github.io](https://github.com/jking412/jking412.github.io) 的 `astro`。部署脚本只推送 `astro`，不会修改目标仓库的 `main` 或 `master`。
 
+首次部署已于 2026-10-05 完成。目标仓库的 GitHub Pages 当前已配置为从 `astro` 分支的 `/` 根目录发布，线上首页验证为 Astro 站点。后续本机发布可直接运行以下命令；源码仓库的跨仓库自动发布需要另行配置下文的 `PAGES_DEPLOY_TOKEN`。
+
 ## 本地发布
 
 需要 Node.js 24 和 Git。先安装依赖、检查，再生成静态文件：

@@ -8,14 +8,20 @@ const routes = new Set();
 let imageReferences = 0;
 for (const file of files) {
   const { metadata, body } = splitPost(await readFile(file, 'utf8'), file);
+  // Match collection defaults so a newly written post only needs title and date.
+  const description = metadata.description === undefined ? '' : metadata.description;
+  const tags = metadata.tags === undefined ? [] : metadata.tags;
+  const categories = metadata.categories === undefined ? [] : metadata.categories;
   assert.equal(typeof metadata.title, 'string', `${file}: title`);
-  assert.equal(typeof metadata.description, 'string', `${file}: description`);
+  assert.equal(typeof description, 'string', `${file}: description`);
   assert.ok(!Number.isNaN(Date.parse(metadata.date)), `${file}: date`);
-  assert.ok(Array.isArray(metadata.tags) && metadata.tags.every((item) => typeof item === 'string'), `${file}: tags`);
-  assert.ok(Array.isArray(metadata.categories) && metadata.categories.every((item) => typeof item === 'string'), `${file}: categories`);
-  assert.match(metadata.legacyPath, /^\/\d{4}\/\d{2}\/\d{2}\/[^/]+\/$/, `${file}: legacyPath`);
-  assert.ok(!routes.has(metadata.legacyPath), `Duplicate route: ${metadata.legacyPath}`);
-  routes.add(metadata.legacyPath);
+  assert.ok(Array.isArray(tags) && tags.every((item) => typeof item === 'string'), `${file}: tags`);
+  assert.ok(Array.isArray(categories) && categories.every((item) => typeof item === 'string'), `${file}: categories`);
+  if (metadata.legacyPath !== undefined) {
+    assert.match(metadata.legacyPath, /^\/\d{4}\/\d{2}\/\d{2}\/[^/]+\/$/, `${file}: legacyPath`);
+    assert.ok(!routes.has(metadata.legacyPath), `Duplicate route: ${metadata.legacyPath}`);
+    routes.add(metadata.legacyPath);
+  }
   assert.ok(!body.includes('{% post_link'), `${file}: unresolved Hexo post link`);
   assert.ok(!body.includes('![['), `${file}: unresolved Obsidian image`);
   for (const match of body.matchAll(/!\[[^\]]*\]\((<[^>]+>|[^\s)]+)/g)) {
@@ -37,4 +43,4 @@ if (process.argv[2]) {
   }
   assert.equal(plan.warnings.length, 0, `Migration warnings: ${plan.warnings.join('; ')}`);
 }
-console.log(`Verified ${files.length} posts, ${routes.size} unique legacy URLs and ${imageReferences} image references${process.argv[2] ? '; full source comparison passed' : ''}.`);
+console.log(`Verified ${files.length} posts, ${routes.size} unique explicit legacy URLs and ${imageReferences} image references${process.argv[2] ? '; full source comparison passed' : ''}.`);
