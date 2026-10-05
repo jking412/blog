@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import { getPosts } from '../lib/posts';
+const posts = await getPosts();
+const years = [...new Set(posts.map(post => new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Asia/Shanghai' }).format(post.data.date)))];
+---
+<BaseLayout title="文章归档">
+  <div class="page-heading"><h1>文章归档<span class="title-dot">。</span></h1><p>共 {posts.length} 篇文章，按时间慢慢翻。</p></div>
+  <div class="search-bar"><label for="post-search">查找文章</label><input id="post-search" type="search" placeholder="输入标题、摘要或标签" autocomplete="off" /><p id="search-status" role="status" aria-live="polite"></p></div>
+  <p id="search-empty" hidden>没有找到相关的文章，换个关键词试试。</p>
+  {years.map(year => <section class="archive-year" data-year-section><h2>{year}</h2><PostList compact posts={posts.filter(post => new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Asia/Shanghai' }).format(post.data.date) === year)} /></section>)}
+  <script>
+    const input = document.querySelector<HTMLInputElement>('#post-search');
+    const status = document.querySelector<HTMLElement>('#search-status');
+    const empty = document.querySelector<HTMLElement>('#search-empty');
+    input?.addEventListener('input', () => {
+      const query = input.value.trim().toLocaleLowerCase();
+      const words = query.split(/\s+/).filter(Boolean);
+      let count = 0;
+      document.querySelectorAll<HTMLElement>('[data-search]').forEach(row => {
+        const match = words.every(word => row.dataset.search?.includes(word));
+        row.hidden = !match;
+        if (match) count++;
+      });
+      document.querySelectorAll<HTMLElement>('[data-year-section]').forEach(section => {
+        section.hidden = !section.querySelector('[data-search]:not([hidden])');
+      });
+      if (status) status.textContent = query ? `找到 ${count} 篇文章` : '';
+      if (empty) empty.hidden = count > 0;
+    });
+  </script>
+</BaseLayout>

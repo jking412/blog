@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPosts, groupTags, tagUrl } from '../../lib/posts';
+const posts = await getPosts();
+const tags = groupTags(posts);
+---
+<BaseLayout title="标签">
+  <div class="page-heading"><h1>按兴趣阅读<span class="title-dot">。</span></h1><p>从一个主题开始，发现更多记录。</p></div>
+  <ul class="tag-index">{tags.map(tag => <li><a href={tagUrl(tag.name)}><span>{tag.name}</span><span class="tag-count">{tag.posts.length} 篇</span></a></li>)}</ul>
+</BaseLayout>

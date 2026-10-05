@@ -1,0 +1,20 @@
+---
+import { formatDate, postUrl, tagUrl, type Post } from '../lib/posts';
+interface Props { posts: Post[]; compact?: boolean }
+const { posts, compact = false } = Astro.props;
+---
+<ol class:list={['post-list', { compact }]}>
+  {posts.map(post => (
+    <li class="post-row" data-search={`${post.data.title} ${post.data.description} ${post.data.tags.join(' ')} ${post.data.categories.join(' ')}`.toLocaleLowerCase()}>
+      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+      <div class="post-details">
+        <h3><a href={postUrl(post)}>{post.data.title}</a></h3>
+        {!compact && post.data.description && <p class="excerpt">{post.data.description}</p>}
+        {post.data.tags.length > 0 && <ul class="tag-links" aria-label="文章标签">{post.data.tags.map(tag => <li><a href={tagUrl(tag)}>{tag}</a></li>)}</ul>}
+      </div>
+      <a class="row-arrow" href={postUrl(post)} aria-label={`阅读 ${post.data.title}`} tabindex="-1" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </a>
+    </li>
+  ))}
+</ol>

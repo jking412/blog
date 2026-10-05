@@ -1,0 +1,63 @@
+# This workflow is copied into jking412.github.io/astro with the static build.
+# It does not run on pushes to the blog source repository's main branch.
+name: Publish Astro to GitHub Pages
+
+on:
+  push:
+    branches: [astro]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: astro-pages
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    if: github.repository == 'jking412/jking412.github.io' && github.ref == 'refs/heads/astro'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      mode: ${{ steps.source.outputs.mode }}
+    steps:
+      - name: Inspect Pages publishing source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mode=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.build_type')
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          if [ "$mode" != 'workflow' ]; then
+            echo '::notice::Pages uses branch publishing; GitHub will publish the configured branch directly.'
+          fi
+      - name: Checkout static site
+        if: steps.source.outputs.mode == 'workflow'
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Configure Pages
+        if: steps.source.outputs.mode == 'workflow'
+        uses: actions/configure-pages@v5
+      - name: Upload site
+        if: steps.source.outputs.mode == 'workflow'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .
+  deploy:
+    needs: upload
+    if: needs.upload.outputs.mode == 'workflow'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish site
+        id: deployment
+        uses: actions/deploy-pages@v4

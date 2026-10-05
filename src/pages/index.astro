@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import { getPosts, groupTags } from '../lib/posts';
+const posts = await getPosts();
+const tags = groupTags(posts);
+---
+<BaseLayout>
+  <section class="intro">
+    <div>
+      <h1>写下来，<br />慢慢想<span class="title-dot">。</span></h1>
+      <p>你好，我是 jking。<br />这里记录编程、系统与学习路上的一点思考。</p>
+    </div>
+    <aside class="intro-note" aria-label="博客简介">
+      <p>生活也许不总是美好，<br />不如意时看看头顶的天空。</p>
+      <a href="/about/">关于这个博客 <span aria-hidden="true">↗</span></a>
+    </aside>
+  </section>
+  <section aria-labelledby="recent-heading">
+    <div class="section-heading"><h2 id="recent-heading">最近的文字</h2><a href="/archives/">全部 {posts.length} 篇文章 <span aria-hidden="true">→</span></a></div>
+    <PostList posts={posts.slice(0, 10)} />
+    <div class="list-end"><a class="text-link" href="/archives/">去归档继续阅读 <span aria-hidden="true">→</span></a><span>{tags.length} 个标签，{posts.length} 篇记录</span></div>
+  </section>
+</BaseLayout>

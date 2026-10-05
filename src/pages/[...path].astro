@@ -1,0 +1,31 @@
+---
+import { render } from 'astro:content';
+import 'katex/dist/katex.min.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getPosts, postPath, postUrl, formatDate, tagUrl } from '../lib/posts';
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, index) => ({ params: { path: postPath(post).replace(/^\/|\/$/g, '') }, props: { post, previous: posts[index + 1], next: posts[index - 1] } }));
+}
+const { post, previous, next } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter(heading => heading.depth <= 3);
+---
+<BaseLayout title={post.data.title} description={post.data.description} article date={post.data.date}>
+  <div class="article-container">
+    <a class="back-link" href="/archives/">← 文章归档</a>
+    <article>
+      <header class="article-header">
+        <div class="article-meta"><time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time><span>jking</span></div>
+        <h1>{post.data.title}</h1>
+        {post.data.tags.length > 0 && <ul class="tag-links" aria-label="文章标签">{post.data.tags.map(tag => <li><a href={tagUrl(tag)}>{tag}</a></li>)}</ul>}
+      </header>
+      {toc.length > 2 && <details class="toc"><summary>文章目录 <span>{toc.length} 节</span></summary><nav aria-label="文章目录"><ul>{toc.map(heading => <li class:list={{ nested: heading.depth === 3 }}><a href={`#${heading.slug}`}>{heading.text}</a></li>)}</ul></nav></details>}
+      <div class="prose"><Content /></div>
+    </article>
+    <nav class="post-navigation" aria-label="相邻文章">
+      <div>{previous && <a href={postUrl(previous)}><span>上一篇</span>{previous.data.title}</a>}</div>
+      <div>{next && <a href={postUrl(next)}><span>下一篇</span>{next.data.title}</a>}</div>
+    </nav>
+  </div>
+</BaseLayout>
