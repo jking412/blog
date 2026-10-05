@@ -33,6 +33,7 @@ const currentPath = Astro.url.pathname;
       <nav aria-label="主导航">
         <a href="/" aria-current={currentPath === '/' ? 'page' : undefined}>文章</a>
         <a href="/archives/" aria-current={currentPath.startsWith('/archives') ? 'page' : undefined}>归档</a>
+        <a href="/categories/" aria-current={currentPath.startsWith('/categories/') ? 'page' : undefined}>分类</a>
         <a href="/tags/" aria-current={currentPath.startsWith('/tags') ? 'page' : undefined}>标签</a>
         <a href="/about/" aria-current={currentPath === '/about/' ? 'page' : undefined}>关于</a>
       </nav>

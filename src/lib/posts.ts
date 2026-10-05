@@ -32,3 +32,28 @@ export function groupTags(posts: Post[]) {
   }
   return [...tags.values()].sort((a, b) => b.posts.length - a.posts.length || a.name.localeCompare(b.name));
 }
+
+export const categoryKey = (category: string) => category.trim().normalize('NFC').toLocaleLowerCase();
+export const categoryUrl = (category: string) => `/categories/${encodeURIComponent(categoryKey(category))}/`;
+
+export function postCategories(post: Post): string[] {
+  const categories = post.data.categories.map(category => category.trim()).filter(Boolean);
+  return categories.length ? categories : ['未分类'];
+}
+
+export function groupCategories(posts: Post[]) {
+  const categories = new Map<string, { name: string; key: string; posts: Post[] }>();
+  for (const post of posts) {
+    for (const name of postCategories(post)) {
+      const key = categoryKey(name);
+      const group = categories.get(key) ?? { name, key, posts: [] };
+      if (!group.posts.includes(post)) group.posts.push(post);
+      categories.set(key, group);
+    }
+  }
+  return [...categories.values()].sort((a, b) => {
+    if (a.key === '未分类') return 1;
+    if (b.key === '未分类') return -1;
+    return b.posts.length - a.posts.length || a.name.localeCompare(b.name);
+  });
+}

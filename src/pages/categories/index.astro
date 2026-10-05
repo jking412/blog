@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPosts, groupCategories, categoryUrl } from '../../lib/posts';
+const posts = await getPosts();
+const categories = groupCategories(posts);
+---
+<BaseLayout title="文章分类" description="按分类浏览 jking 的编程、系统和学习笔记。">
+  <div class="page-heading"><h1>按分类阅读<span class="title-dot">。</span></h1><p>共 {posts.length} 篇文章，从一个方向开始阅读。</p></div>
+  {categories.length > 0 ? (
+    <ul class="tag-index category-index" aria-label="文章分类">
+      {categories.map(category => (
+        <li><a href={categoryUrl(category.name)}><span>{category.name}</span><span class="tag-count">{category.posts.length} 篇</span></a></li>
+      ))}
+    </ul>
+  ) : <p>还没有已发布的文章。</p>}
+</BaseLayout>

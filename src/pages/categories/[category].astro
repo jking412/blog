@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts, groupCategories } from '../../lib/posts';
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return groupCategories(posts).map(category => ({ params: { category: category.key }, props: { category: category.name, posts: category.posts } }));
+}
+const { category, posts } = Astro.props;
+---
+<BaseLayout title={`分类：${category}`} description={`${category}分类下的 ${posts.length} 篇文章。`}>
+  <a class="back-link" href="/categories/">← 全部分类</a>
+  <div class="page-heading">
+    <h1>{category}<span class="title-dot">。</span></h1>
+    <p>{category === '未分类' ? `暂未指定分类的 ${posts.length} 篇文章。` : `这个分类下的 ${posts.length} 篇记录。`}</p>
+  </div>
+  <PostList posts={posts} />
+</BaseLayout>

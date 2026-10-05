@@ -31,7 +31,8 @@ description: 用一两句话说明这篇文章的内容。
 date: '2026-10-05T12:00:00+08:00'
 tags:
   - Astro
-categories: []
+categories:
+  - 学习笔记
 draft: false
 ---
 
@@ -39,6 +40,8 @@ draft: false
 ```
 
 `draft: true` 的文章不会发布。默认链接使用 `/年/月/日/文件名/`；旧文章用 `legacyPath` 保留原 Hexo 链接，通常不需要修改这个字段。文章支持 Markdown、Shiki 代码高亮与 KaTeX 数学公式。
+
+`categories` 用于文章分类，`tags` 用于更具体的关键词。分类页会自动汇总已发布文章；可以填写多个分类，分类名称忽略大小写及首尾空格。同一文章在同一分类只计数一次。没有填写分类或分类为空的文章归入「未分类」。
 
 ## 迁移与部署
 
@@ -63,7 +66,7 @@ npm run deploy
 
 ```text
 src/content/blog/  Markdown 文章
-src/pages/         首页、旧日期路由、归档、标签、关于、RSS
+src/pages/         首页、旧日期路由、归档、分类、标签、关于、RSS
 src/layouts/       全站布局
 src/styles/        阅读样式
 scripts/           迁移、验证、部署
